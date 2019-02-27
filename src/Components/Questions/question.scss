@@ -1,0 +1,64 @@
+.goto {
+  text-align: center;
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.questions {
+  max-width: 80%;
+  margin: auto;
+  padding: 10px 20px;
+  position: relative;
+  background-color: #ffffff;
+  border: 1px groove #cccccc;
+  .create {
+    position: absolute;
+    z-index: 9999;
+    right: 10px;
+  }
+}
+
+.question {
+  margin-bottom: 15px;
+  .number {
+    margin-right: 0.7rem;
+    vertical-align: top;
+  }
+  & > p:nth-child(2) {
+    width: calc(100% - 60px);
+    display: inline-block;
+    margin: 0;
+  }
+}
+
+.quest {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #cccccc;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 2rem;
+}
+.option {
+  flex-basis: 50%;
+  margin-bottom: 10px;
+  &.action {
+    text-align: right;
+    &.f100 {
+      flex-basis: 100%;
+    }
+  }
+  & > span {
+    margin-right: 0.7rem;
+    vertical-align: top;
+  }
+  & > p:nth-child(2) {
+    width: calc(100% - 60px);
+    display: inline-block;
+    margin: 0;
+  }
+}
