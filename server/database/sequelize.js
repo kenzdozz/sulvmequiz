@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import os from 'os';
 
 const sequelize = new Sequelize('database', null, null, {
   host: 'localhost',
@@ -12,7 +13,7 @@ const sequelize = new Sequelize('database', null, null, {
     idle: 10000,
   },
 
-  storage: './storage.sqlite',
+  storage: os.homedir() + '/.sulvme/storage.sqlite',
 });
 
 export { Sequelize, sequelize };

@@ -6,23 +6,33 @@ import 'dotenv/config';
 import codes from './helpers/statusCode';
 import Response from './helpers/Response';
 import router from './routes/apiRoutes';
+import Question from './database/Question';
+import Quiz from './database/Quiz';
+import mkdirp from 'mkdirp';
+import os from 'os';
+import path from 'path';
+import fs from 'fs';
 
 const app = express();
-const PORT = process.env.PORT || 30303;
+const PORT = process.env.PORT || 3030;
 
 // Question.drop();
-// Question.sync();
+Question.sync();
+// Quiz.drop();
+Quiz.sync();
+
+mkdirp.sync(os.homedir() + '/.sulvme/public/images');
 
 app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/../public'));
+app.use(express.static(os.homedir() + '/.sulvme/public'));
 
 app.get('/', async (req, res) => {
-  Response.send(res)
-  res.status(codes.success).send({
-    status: codes.success,
+  console.log(req.url);
+  Response.send(res, codes.success, {
     data: {
       message: 'The app is running',
     },

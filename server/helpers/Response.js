@@ -10,7 +10,7 @@ class Response {
 
   static handleError(res, error = '') {
     // eslint-disable-next-line no-console
-    // console.log(error);
+    console.log(error);
     return Response.send(res, codes.serverError, {
       error: error || 'Internal server error',
     });

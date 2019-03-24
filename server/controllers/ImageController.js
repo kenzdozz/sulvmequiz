@@ -1,23 +1,11 @@
-import FroalaEditor from 'wysiwyg-editor-node-sdk/lib/froalaEditor';
+import codes from '../helpers/statusCode';
 
 const ImageController = {
   upload: (req, res) => {
-    FroalaEditor.Image.upload(req, '../public/images/', function (err, data) {
-      if (err) {
-        return res.send(JSON.stringify(err));
-      }
-      res.send({
-        link: 'http://localhost:30303' + data.link.split('public')[1],
-      });
+    if (req.body.image != 'invalid') return res.status(codes.created).send({
+      link: 'http://localhost:3030/' + req.body.image,
     });
-  },
-  delete: (req, res) => {
-    FroalaEditor.File.delete(req.body.src, function (err) {
-      if (err) {
-        return res.send(JSON.stringify(err));
-      }
-      return res.end();
-    });
+    res.status(codes.serverError).send({ error: 'cannot upload.' });
   }
 }
 

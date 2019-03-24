@@ -2,13 +2,13 @@
 import Popup from 'react-popup';
 
 const constants = {
-  port: 30303,
+  port: 3030,
   baseUrl: 'http://localhost:'
 }
 constants.baseUrl += `${constants.port}`;
 
 
-const fetchCall = async (url, method, data, callback) => {
+const fetchCall = async (url, method, data) => {
   const config = {
     method,
     mode: 'cors',
@@ -19,7 +19,7 @@ const fetchCall = async (url, method, data, callback) => {
   };
   if (data) config.body = JSON.stringify(data);
   try {
-    const resData = await fetch(url, config);
+    const resData = await fetch(`${constants.baseUrl}${url}`, config);
     const response = await resData.json();
     return response;
   } catch (error) {

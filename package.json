@@ -1,22 +1,28 @@
 {
   "name": "sulvmequiz",
   "version": "0.1.0",
+  "description": "Sulvme Competition App",
   "private": true,
-  "homepage": "./",
-  "main": "src/start.js",
+  "homepage": "http://sulvme.com",
+  "main": "build/electron.js",
+  "author": "KENZiE <KenzDozz@gmail.com>",
+  "icon": "build/public/img/icon.ico",
   "dependencies": {
     "@wiris/mathtype-froala": "^7.10.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "dotenv": "^6.2.0",
-    "draft-js": "^0.10.5",
+    "electron-is-dev": "^1.0.1",
     "express": "^4.16.4",
     "font-awesome": "^4.7.0",
     "froala-editor": "^2.9.3",
     "jquery": "^3.3.1",
+    "mkdirp": "^0.5.1",
     "morgan": "^1.9.1",
     "multer": "^1.4.1",
-    "node-sass": "^4.11.0",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "react-froala-wysiwyg": "^2.9.3",
@@ -24,40 +30,66 @@
     "react-load-script": "0.0.6",
     "react-popup": "^0.10.0",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.5",
     "sequelize": "^4.42.0",
     "sqlite3": "^4.0.6",
     "wysiwyg-editor-node-sdk": "^2.3.4"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.7.0",
     "babel-core": "^6.26.3",
     "babel-plugin-istanbul": "^5.1.0",
-    "babel-watch": "^2.0.8"
+    "babel-watch": "^2.0.8",
+    "concurrently": "^4.1.0",
+    "electron": "^4.1.0",
+    "electron-builder": "^20.39.0",
+    "electron-builder-squirrel-windows": "^20.39.0",
+    "node-pre-gyp": "^0.12.0",
+    "node-sass": "^4.11.0",
+    "react-scripts": "2.1.5",
+    "typescript": "^3.3.3333",
+    "wait-on": "^3.2.0"
   },
   "scripts": {
     "start:dev": "./node_modules/.bin/babel-watch server/app.js",
-    "start": "nf start -p 3000",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "electron": "electron .",
-    "electron-start": "node src/start-react",
-    "react-start": "BROWSER=non react-scripts start",
-    "pack": "build --dir",
-    "dist": "npm run build && build",
-    "postinstall": "install-app-deps"
+    "prebuild:server": "mv builds build",
+    "build:server": "babel ./server -d build/server --copy-files",
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "postreact-build": "mkdir builds && mv build builds/public && mv builds/public/electron.js builds/electron.js",
+    "react-test": "react-scripts test --env=jsdom",
+    "react-eject": "react-scripts eject",
+    "electron-build": "electron-builder",
+    "build": "yarn react-build && yarn build:server",
+    "postinstall": "electron-builder install-app-deps",
+    "pack-win": "yarn build && build --dir --win",
+    "dist-win": "yarn build && build --win",
+    "dist": "yarn build && build -w",
+    "start:e": "yarn react-build && yarn build:server && electron .",
+    "start": "concurrently \"yarn start:dev\" \"BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "build": {
     "appId": "com.sulvme.quizapp",
-    "win": {
-      "iconUrl": "https://cdn2.iconfinder.com/data/icons/designer-skills/128/react-256.png"
+    "extraResources": "images",
+    "linux": {
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "ia32"
+          ]
+        }
+      ]
     },
-    "directories": {
-      "buildResources": "public"
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "build/public/img/winicon.ico"
     }
   },
   "eslintConfig": {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { popup } from '../../helper';
+import { popup, fetchCall } from '../../helper';
 import './index.scss';
 import logo from '../../assests/logo.png';
 
@@ -12,7 +12,8 @@ export default class Home extends Component {
       questions: '',
       setup: false,
       manage: false,
-      phase: 1
+      phase: 1,
+      timer: 0
     }
   }
 
@@ -35,19 +36,37 @@ export default class Home extends Component {
     });
   }
 
-  startAction = () => {
-    const path = this.state.manage ? '/admin' : '/questions';
+  startAction = async () => {
+    const path = this.state.manage ? '/admin' : '/';
     const data = {
       category: this.state.category,
       level: parseInt(this.state.level),
       questions: this.state.questions,
+      timer: this.state.timer,
     }
+    if (!this.state.manage && !data.timer)
+      return popup('Error', 'Time for each question is required.', 'error');
     if (this.state.phase === 2 && !this.state.manage && !data.questions)
       return popup('Error', 'Questions are required.', 'error');
+
+    if (this.state.phase === 2 && !this.state.manage) {
+      const qNumbers = data.questions.split(' ');
+      const response = await fetchCall(`/questions/${data.category.toLowerCase()}/${data.level}?goto=${data.questions}&limit=500`);
+      if (qNumbers.length !== response.count) {
+        let resNumbers = response.data.map(a => a.number);
+        let notExist = qNumbers.filter(e => !resNumbers.includes(parseInt(e, 10)));
+        notExist = notExist.join(', ');
+        console.log(qNumbers, response)
+        return popup('Error', `This question number(s): ${notExist} does not exist.`, 'error');
+      }
+    }
+    
+    if (!this.state.manage) await fetchCall('/quiz', 'POST', data);
+
     this.props.history.push({
       pathname: path,
       data: data
-    })
+    });
   }
 
   render() {
@@ -76,6 +95,7 @@ export default class Home extends Component {
           <option value="5">Level Five</option>
         </select>
         <div className={ (this.state.manage ? 'hide':'') + ' mt-1 w60 text-center'}>
+          <input type="number" onChange={this.handleFormChange('timer')} className="mt-1 mb-1 w50 text-center" placeholder="Time in secs"/>
           <div className="w100">
             <label htmlFor="phase1" className="mr-1">
               <input onChange={this.setPhase} type="radio" name="phase" value="1" id="phase1"/>

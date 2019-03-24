@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import FroalaEditor from 'react-froala-wysiwyg';
 import Popup from 'react-popup';
 import $ from 'jquery'
 import Header from '../Header';
@@ -16,6 +15,8 @@ import 'font-awesome/css/font-awesome.css';
 import '../../assests/css/wirisplugin.css';
 import '../../assests/css/popup.css';
 import './question.scss';
+
+const FroalaEditor = React.lazy(() => import('react-froala-wysiwyg'));
 
 window.$ = $
 window.jQuery = $
@@ -33,6 +34,7 @@ export default class CreateQuestion extends Component {
     this.editQuestion = editQuestion;
     
     this.state = {
+      hasError: false,
       number: editQuestion.number || sessionStorage.getItem('nextNumber') || 1,
       question: editQuestion.question || '',
       option_a: editQuestion.option_a || '',
@@ -49,6 +51,7 @@ export default class CreateQuestion extends Component {
       toolbarSticky: false,
       quickInsertButtons: [],
       imageAllowedTypes: ['jpeg', 'jpg', 'png'],
+      imageUploadParam: 'image',
       imageUploadURL: `${constants.baseUrl}/upload-image`,
       imageEditButtons: ['imageSize', 'imageDisplay', 'imageAlign', 'imageRemove'],
       toolbarButtons: ['wirisEditor', 'bold', 'italic', 'underline', 'strikeThrough', 'insertImage', 'subscript', 'superscript', 'outdent', 'indent', 'align', 'clearFormatting', 'insertTable', 'fontSize', 'color', 'specialCharacters', '|', 'undo', 'redo'], events: {
@@ -83,16 +86,60 @@ export default class CreateQuestion extends Component {
     loader.start();
     const data = JSON.parse(sessionStorage.getItem('locationData'));
     const url = this.isEdit ? `${this.editQuestion.id}` : `${data.category.toLowerCase()}/${data.level}`;
-    const response = await fetchCall(`${constants.baseUrl}/questions/${url}`,
+    const response = await fetchCall(`/questions/${url}`,
       this.isEdit ? 'PATCH' : 'POST', this.state);
     loader.stop();
     if (response.status >= 400) return popup('Error', response.error, 'error');
     this.props.history.push('/admin')
   }
 
-  render() {
+  loadFroala = field => {
     return (
-      <div>
+      <FroalaEditor
+        tag='textarea'
+        config={this.config}
+        model={this.state[field]}
+        onModelChange={ this.handleFormChanges(field) }
+      />
+    );
+  }
+
+  componentDidCatch(error, errorInfo) {
+    this.setState({ hasError: true });
+  }
+
+  componentDidMount() {
+    console.log('oooo')
+
+    setTimeout(() => {
+      // this.setState({ hasError: true });
+      if (this.refs.fallback) console.log('oo')
+    }, 100);
+    console.log(this.refs.fallback)
+  }
+
+  reload = e => {
+    new Loading(e.target, 'sm').start();
+    window.location.reload();
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <React.Fragment>
+          <Header title="New question" back="/admin" />
+          <main className="dflex">
+            <div className="card-box">
+              <p>No or poor internet connection, please try again.</p>
+              <button onClick={this.reload} className="btn btn-gold">Reload</button>
+            </div>
+          </main>
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <React.Fragment>
         <Header title="New question" back="/admin" />
         <main>
           <div className="questions">
@@ -104,58 +151,40 @@ export default class CreateQuestion extends Component {
               </div>
               <div className="form-grp">
                 <label className="w100" htmlFor="question">Question:</label>
-                <FroalaEditor
-                  tag='textarea'
-                  config={this.config}
-                  model={this.state.question}
-                  onModelChange={this.handleFormChanges('question')}
-                />
+                  <React.Suspense maxDuration={1000} fallback={<small className="fload">Loading...</small>}>
+                    { this.loadFroala('question') }
+                  </React.Suspense>
               </div>
               <div className="dflex">
                 <div className="form-grp flex50">
                   <label className="w100" htmlFor="question">Option A:</label>
-                  <FroalaEditor
-                    tag='textarea'
-                    config={this.config}
-                    model={this.state.option_a}
-                    onModelChange={this.handleFormChanges('option_a')}
-                  />
+                  <React.Suspense maxDuration={1000} fallback={<small className="fload">Loading...</small>}>
+                    { this.loadFroala('option_a') }
+                  </React.Suspense>
                 </div>
                 <div className="form-grp flex50">
                   <label className="w100" htmlFor="question">Option B:</label>
-                  <FroalaEditor
-                    tag='textarea'
-                    config={this.config}
-                    model={this.state.option_b}
-                    onModelChange={this.handleFormChanges('option_b')}
-                  />
+                  <React.Suspense maxDuration={1000} fallback={<small className="fload">Loading...</small>}>
+                    { this.loadFroala('option_b') }
+                  </React.Suspense>
                 </div>
                 <div className="form-grp flex50">
                   <label className="w100" htmlFor="question">Option C:</label>
-                  <FroalaEditor
-                    tag='textarea'
-                    config={this.config}
-                    model={this.state.option_c}
-                    onModelChange={this.handleFormChanges('option_c')}
-                  />
+                  <React.Suspense maxDuration={1000} fallback={<small className="fload">Loading...</small>}>
+                    { this.loadFroala('option_c') }
+                  </React.Suspense>
                 </div>
                 <div className="form-grp flex50">
                   <label className="w100" htmlFor="question">Option D:</label>
-                  <FroalaEditor
-                    tag='textarea'
-                    config={this.config}
-                    model={this.state.option_d}
-                    onModelChange={this.handleFormChanges('option_d')}
-                  />
+                  <React.Suspense maxDuration={1000} fallback={<small className="fload">Loading...</small>}>
+                    { this.loadFroala('option_d') }
+                  </React.Suspense>
                 </div>
                 <div className="form-grp flex50">
                   <label className="w100" htmlFor="question">Option E:</label>
-                  <FroalaEditor
-                    tag='textarea'
-                    config={this.config}
-                    model={this.state.option_e}
-                    onModelChange={this.handleFormChanges('option_e')}
-                  />
+                  <React.Suspense maxDuration={1000} fallback={<small className="fload" ref="fallback">Loading...</small>}>
+                    { this.loadFroala('option_e') }
+                  </React.Suspense>
                 </div>
                 <div className="form-grp flex50">
                   <label className="w100" htmlFor="question">Answer:</label>
@@ -175,7 +204,7 @@ export default class CreateQuestion extends Component {
             </form>
           </div>
         </main>
-      </div>
+      </React.Fragment>
     )
   }
 }

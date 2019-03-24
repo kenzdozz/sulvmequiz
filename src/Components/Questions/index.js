@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import './question.scss';
 import Header from '../Header';
 import Question from './question';
-import { fetchCall, constants, popup, Loading } from '../../helper';
+import { fetchCall, popup, Loading } from '../../helper';
 
 export default class Questions extends Component {
   constructor(props) {
@@ -34,11 +33,11 @@ export default class Questions extends Component {
     } else sessionStorage.setItem('locationData', JSON.stringify(data));
     this.setState({ locationData: data });
     const response = await fetchCall(
-      `${constants.baseUrl}/questions/${data.category.toLowerCase()}/${data.level}?page=${this.state.page}&goto=${this.state.goto}`, 
+      `/questions/${data.category.toLowerCase()}/${data.level}?page=${this.state.page}&goto=${this.state.goto}`, 
       'GET'
     );
     const questions = response.data;
-    const pageCount = response.count;
+    const pageCount = response.pageCount;
     this.setState({ questions, pageCount });
     if (questions.length) 
       sessionStorage.setItem('nextNumber', questions[questions.length - 1].number + 1);
@@ -72,7 +71,7 @@ export default class Questions extends Component {
     if(!window.confirm('Continue to delete this question?')) return;
     const loader = new Loading(e.target, 'sm');
     loader.start();
-    const response = await fetchCall(`${constants.baseUrl}/questions/${question.id}`, 'DELETE');
+    const response = await fetchCall(`/questions/${question.id}`, 'DELETE');
     if (response.status >= 400) {
       loader.stop();
       return popup('Error', response.error, 'error');
